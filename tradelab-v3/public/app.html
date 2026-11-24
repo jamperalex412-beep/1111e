@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Терминал · Демо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>
+body{display:flex;flex-direction:column;height:100vh}
+.top{gap:14px;padding:8px 14px}.top select{width:auto}.user{flex-wrap:nowrap;white-space:nowrap}#uName{max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.metrics{gap:16px}.metric b{font-size:14px}
+.term{flex:1;min-height:0;display:grid;grid-template-columns:340px minmax(0,1fr) 320px;grid-template-rows:minmax(0,1fr) 270px;gap:1px;background:var(--line)}
+.term>section{background:var(--bg);min-height:0;overflow:hidden;display:flex;flex-direction:column}
+/* обзор рынка */
+.watch .search{padding:8px}
+.cats{display:flex;gap:3px;padding:0 8px 6px;flex-wrap:wrap}
+.cats button{background:var(--panel2);border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;cursor:pointer;color:var(--mute)}
+.cats button.on{color:var(--ink);border-color:var(--acc)}
+.wh,.wr{display:grid;grid-template-columns:16px minmax(0,1fr) 70px 70px 54px;gap:4px;align-items:center;padding:0 8px}
+.wh{font-size:11px;color:var(--mute);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.items{overflow:auto;flex:1}
+.wr{width:100%;background:none;border:0;border-bottom:1px solid #171d25;padding:7px 8px;cursor:pointer;text-align:left;font-size:13px}
+.wr:hover{background:var(--panel)}.wr.on{background:var(--panel2);box-shadow:inset 3px 0 var(--acc)}
+.wr .s{display:flex;gap:6px;align-items:center;overflow:hidden}.wr .s b{white-space:nowrap}
+.wr .n{display:block;color:var(--mute);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wr .p{text-align:right;font-weight:600;font-size:12.5px;white-space:nowrap}.wr .c{text-align:right;font-size:12px}
+.star{background:none;border:0;color:#4a5260;cursor:pointer;padding:0;font-size:14px;line-height:1}.star.on{color:var(--demo)}
+.flash-up{color:var(--up)!important}.flash-dn{color:var(--down)!important}
+/* график */
+.ctool{display:flex;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.ctool .sym{font-weight:800;font-size:16px;margin-right:4px}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{background:none;border:0;padding:5px 8px;font-size:12.5px;color:var(--mute);cursor:pointer;font-weight:600}
+.seg button.on{background:var(--panel2);color:var(--ink)}
+.seg button+button{border-left:1px solid var(--line)}
+#chartWrap{flex:1;position:relative;min-height:0}
+#chart{position:absolute;inset:0}
+#legend{position:absolute;left:10px;top:6px;z-index:3;font-size:12px;color:var(--mute);pointer-events:none;display:flex;gap:10px;flex-wrap:wrap}
+#legend b{color:var(--ink);font-weight:600}
+.indmenu{min-width:260px!important;padding:10px!important}
+.indmenu label{display:flex;align-items:center;gap:8px;margin:6px 0;color:var(--ink);font-size:13px}
+.indmenu input[type=checkbox]{width:16px;height:16px}.indmenu input[type=number]{width:64px;padding:4px 6px;font-size:13px;margin-left:auto}
+.hl-on{border-color:var(--acc)!important;color:var(--ink)!important}
+/* тикет */
+.ticket{padding:12px;overflow:auto!important;gap:0}
+.thead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.thead b{font-size:16px}.thead small{color:var(--mute)}
+.oc{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0 4px}
+.oc button{border:0;border-radius:8px;padding:8px 6px;cursor:pointer;text-align:center;font-weight:700;line-height:1.2}
+.oc .sell{background:var(--down);color:#fff}.oc .buy{background:var(--up);color:#06140d}
+.oc small{display:block;font-size:11px;font-weight:600;opacity:.85}.oc span{font-size:17px}
+.oc button:disabled{opacity:.45;cursor:not-allowed}
+.spr{text-align:center;color:var(--mute);font-size:11.5px}
+.lots{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;gap:4px}
+.lots button{background:var(--panel2);border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:18px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ticket label{margin:9px 0 4px}
+.ticket input,.ticket select{padding:8px 10px;font-size:14px}
+.info{margin-top:12px;font-size:12.5px;display:grid;gap:4px;border-top:1px solid var(--line);padding-top:10px}
+.info div{display:flex;justify-content:space-between;gap:8px}.info span{color:var(--mute)}
+#place{width:100%;margin-top:10px;min-height:42px}
+.closed{background:#2b2f37;color:var(--mute);border-radius:8px;padding:8px;text-align:center;font-size:12.5px;margin-top:8px}
+/* низ */
+.bottom{grid-column:2/4}
+.bottom .tabs{align-items:center}
+.bottom .tabs .right{margin-left:auto;display:flex;gap:6px;align-items:center;padding:4px 0}
+.bottom .scroll{flex:1}
+.bottom table{font-size:12.5px}.bottom td,.bottom th{padding:6px 8px}
+.acts{display:flex;gap:4px;justify-content:flex-end}
+.ie{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.ie input{width:92px;padding:4px 6px;font-size:12.5px;min-height:28px}
+.sumrow{display:flex;gap:18px;padding:8px 10px;border-top:1px solid var(--line);font-size:12.5px;flex-wrap:wrap}.sumrow span{color:var(--mute)}
+@media(max-width:1350px){#uName{display:none}}@media(max-width:1200px){.term{grid-template-columns:270px minmax(0,1fr) 300px}.wh,.wr{grid-template-columns:16px minmax(0,1fr) 70px 52px}.wh .a,.wr .a{display:none}}
+@media(max-width:980px){body{height:auto}.term{grid-template-columns:minmax(0,1fr);grid-template-rows:auto}.term>section{min-height:auto}.watch{max-height:340px}#chartWrap{height:440px;flex:none}.bottom{grid-column:auto;min-height:300px}.metrics{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="demo-strip">Демо-счёт: средства виртуальные, сделки учебные. Источник котировки виден у каждого инструмента.</div>
+<header class="top">
+  <a class="brand" href="/app"><i></i><span id="pname">TradeLab</span> <span class="badge">ДЕМО</span></a>
+  <div class="metrics">
+    <div class="metric"><small>Баланс</small><b id="mBal">—</b></div>
+    <div class="metric"><small>Эквити</small><b id="mEq">—</b></div>
+    <div class="metric"><small>Маржа</small><b id="mMar">—</b></div>
+    <div class="metric"><small>Свободная</small><b id="mFree">—</b></div>
+    <div class="metric"><small>Уровень</small><b id="mLvl">—</b></div>
+    <div class="metric"><small>Плавающая P/L</small><b id="mFl">—</b></div>
+  </div>
+  <div class="user">
+    <select id="lev" class="sm" title="Кредитное плечо счёта" aria-label="Кредитное плечо"></select>
+    <a class="btn sm" href="/bots" id="botsLink">Роботы</a>
+    <a class="btn sm" href="/admin" id="staff" hidden>Панель</a>
+    <span id="uName"></span><button class="btn sm" onclick="logout()">Выйти</button>
+  </div>
+</header>
+<div class="mc" id="mcall" hidden>Маржин-колл: уровень маржи ниже допустимого. При падении до уровня стоп-аута позиции начнут закрываться автоматически.</div>
+<main class="term">
+  <section class="watch">
+    <div class="search"><input id="q" class="sm" placeholder="Поиск инструмента" aria-label="Поиск инструмента"></div>
+    <div class="cats" id="cats"></div>
+    <div class="wh"><span></span><span>Символ</span><span class="r">Bid</span><span class="r a">Ask</span><span class="r">Изм.</span></div>
+    <div class="items" id="items"></div>
+  </section>
+  <section>
+    <div class="ctool">
+      <span class="sym" id="cSym">—</span>
+      <div class="seg" id="tfs"></div>
+      <div class="seg" id="ctype"><button data-t="candle" title="Свечи">Свечи</button><button data-t="bar" title="Бары">Бары</button><button data-t="line" title="Линия">Линия</button></div>
+      <div class="menu"><button class="btn sm" id="indBtn">Индикаторы</button><div id="indMenu" class="indmenu" hidden></div></div>
+      <button class="btn sm" id="hlBtn" title="Кликните по графику, чтобы поставить уровень">Уровень</button>
+      <button class="btn sm" id="hlClr" title="Убрать все уровни на этом инструменте">Очистить</button>
+      <span class="mute" id="srcInfo" style="margin-left:auto;font-size:12px"></span>
+    </div>
+    <div id="chartWrap"><div id="legend"></div><div id="chart"></div></div>
+  </section>
+  <section class="ticket">
+    <div class="thead"><b id="tSym">—</b><small id="tName"></small></div>
+    <div class="mute" style="font-size:12px;display:flex;gap:6px;align-items:center;margin-top:2px"><span class="dot" id="tDot"></span><span id="tSess"></span></div>
+    <label for="otype">Тип ордера</label>
+    <select id="otype"><option value="market">Рыночный</option><option value="buy_limit">Buy Limit</option><option value="sell_limit">Sell Limit</option><option value="buy_stop">Buy Stop</option><option value="sell_stop">Sell Stop</option><option value="buy_stop_limit">Buy Stop Limit</option><option value="sell_stop_limit">Sell Stop Limit</option></select>
+    <label for="lots">Объём, лотов</label>
+    <div class="lots"><button type="button" id="lm" aria-label="Уменьшить">−</button><input id="lots" type="number" step="any" inputmode="decimal"><button type="button" id="lp" aria-label="Увеличить">+</button></div>
+    <div id="pendBox" hidden>
+      <div class="two"><div><label for="oprice" id="opLbl">Цена</label><input id="oprice" type="number" step="any"></div><div id="slBox" hidden><label for="ostop">Лимитная цена</label><input id="ostop" type="number" step="any"></div></div>
+      <label for="oexp">Истечение</label>
+      <div class="two"><select id="oexp"><option value="gtc">До отмены</option><option value="today">До конца дня</option><option value="date">Дата и время</option></select><input id="oexpd" type="datetime-local" hidden></div>
+    </div>
+    <div class="two"><div><label for="osl">Стоп-лосс</label><input id="osl" type="number" step="any" placeholder="цена"></div><div><label for="otp">Тейк-профит</label><input id="otp" type="number" step="any" placeholder="цена"></div></div>
+    <label for="otr">Трейлинг-стоп, расстояние в цене</label><input id="otr" type="number" step="any" placeholder="не использовать">
+    <div class="oc" id="oc"><button class="sell" id="bSell"><small>SELL по рынку</small><span id="bidP">—</span></button><button class="buy" id="bBuy"><small>BUY по рынку</small><span id="askP">—</span></button></div>
+    <div class="spr" id="spr"></div>
+    <button class="btn pri" id="place" hidden>Выставить ордер</button>
+    <div class="closed" id="closedMsg" hidden></div>
+    <div class="info" id="info"></div>
+  </section>
+  <section class="bottom">
+    <div class="tabs" id="btabs">
+      <button data-t="pos" class="on">Позиции <span id="nPos"></span></button><button data-t="ord">Ордера <span id="nOrd"></span></button><button data-t="hist">История</button><button data-t="ledger">Операции по счёту</button><button data-t="journal">Журнал</button>
+      <div class="right" id="tabTools"></div>
+    </div>
+    <div class="scroll" id="tbl"></div>
+    <div class="sumrow" id="sumrow"></div>
+  </section>
+</main>
+<script src="/vendor/lwc/lightweight-charts.standalone.production.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Учебная торговая платформа · Демо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>
+/* VOICE: ночной торговый зал, уверенно и спокойно. IDEA: камера въезжает в табло котировок.
+   PICTURE: сгенерированная панорама зала + летящие навстречу цены. COLOUR: глубокий синий, бирюза, золото.
+   TYPE: Manrope + JetBrains Mono для цифр. LAYOUT: длинная сцена-зум, затем живые плашки, возможности, вход. */
+:root{--gold:#e9b949;--teal:#34d6c8}
+html{scroll-behavior:smooth}
+body{background:#05080e;overflow-x:clip}
+.demo-strip{position:relative;z-index:30}
+.nav{position:sticky;top:0;z-index:25;display:flex;align-items:center;gap:22px;padding:14px max(4vw,16px);background:linear-gradient(#05080ecc,#05080e00);backdrop-filter:blur(6px)}
+.nav .links{display:flex;gap:22px;margin-left:auto}.nav .links a{color:#c9d2df;font-weight:600;font-size:14px}
+.nav .btn,.cta .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.nav .btn{min-height:38px}a.btn:hover{text-decoration:none}
+@media(max-width:760px){.nav .links{display:none}.nav .acts{margin-left:auto}}
+/* сцена-зум */
+.zoom{height:420vh;position:relative;margin-top:-66px}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#04070d}
+.cam{position:absolute;inset:-4%;transform-origin:50% 52%;will-change:transform,filter}
+.cam img{width:100%;height:100%;object-fit:cover;display:block}
+.cam .fallback{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,#13406a 0,#071526 40%,#03060c 75%)}
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.shade{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 30%,#03060ccc 85%),linear-gradient(transparent 60%,#05080e)}
+.blackout{position:absolute;inset:0;background:#05080e;opacity:0;pointer-events:none}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 6vw;opacity:0;pointer-events:none;will-change:opacity,transform}
+.scene.on{pointer-events:auto}
+.kicker{display:inline-flex;gap:8px;align-items:center;font-size:13px;color:#cfe8ff;background:#0d1b2ecc;border:1px solid #23415f;padding:6px 12px;border-radius:99px;backdrop-filter:blur(6px)}
+.kicker i{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 0 4px #1fc27e33}
+.scene h1{font-size:clamp(38px,6.4vw,88px);line-height:1.02;letter-spacing:-.02em;margin:18px 0 16px;max-width:15ch;text-wrap:balance;text-shadow:0 6px 40px #000c}
+.scene h1 em{font-style:normal;background:linear-gradient(90deg,#fff,var(--teal) 55%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.scene p{font-size:clamp(16px,1.5vw,19px);color:#c4cfdd;max-width:56ch;text-shadow:0 2px 20px #000}
+.cta{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;justify-content:center}
+.cta .btn{min-height:50px;padding:0 24px;font-size:15px}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#1a1405}
+.btn.ghost{background:#0b1626aa;border-color:#2b4260;backdrop-filter:blur(6px)}
+.big{font-family:"JetBrains Mono",monospace;font-size:clamp(64px,13vw,180px);font-weight:600;line-height:.9;background:linear-gradient(180deg,#fff,#7fd6ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none}
+.scene h2{font-size:clamp(28px,3.6vw,48px);margin:10px 0 10px;max-width:20ch;text-wrap:balance}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:20px;max-width:760px}
+.chip{background:#0b1626cc;border:1px solid #23395a;border-radius:10px;padding:8px 12px;font-size:13px;backdrop-filter:blur(8px);display:flex;gap:8px;align-items:center}
+.chip b{font-family:"JetBrains Mono",monospace;font-weight:600}
+.codecard{margin-top:22px;text-align:left;background:#07101ccc;border:1px solid #22405f;border-radius:14px;padding:16px 20px;font:13.5px/1.6 "JetBrains Mono",monospace;color:#cfe3ff;backdrop-filter:blur(10px);box-shadow:0 30px 80px #000a;max-width:560px;width:100%}
+.codecard .k{color:#c792ea}.codecard .f{color:#82aaff}.codecard .s{color:#c3e88d}.codecard .c{color:#5f7690}.codecard .n{color:#f78c6c}
+.tape{position:absolute;left:0;right:0;bottom:0;border-top:1px solid #1b2c44;background:#050b14d9;backdrop-filter:blur(8px);overflow:hidden;white-space:nowrap;z-index:3}
+.tape .row{display:inline-flex;gap:34px;padding:12px 0;width:max-content;animation:tape 70s linear infinite}.tape .row>span{flex:none;white-space:nowrap}
+.tape span{font:13px "JetBrains Mono",monospace;color:#9fb0c6}.tape span b{color:#e7eef8;font-weight:600;margin-right:6px}
+@keyframes tape{to{transform:translateX(-50%)}}
+.prog{position:absolute;right:22px;top:50%;transform:translateY(-50%);display:grid;gap:10px;z-index:4}
+.prog i{width:6px;height:6px;border-radius:50%;background:#ffffff40;transition:all .3s}.prog i.on{background:var(--gold);height:22px;border-radius:4px}
+.hint{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);color:#9fb0c6;font-size:12px;letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:6px}
+.hint::after{content:"";width:1px;height:34px;background:linear-gradient(#9fb0c6,transparent);animation:drop 1.8s infinite}
+@keyframes drop{from{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}to{transform:scaleY(0);transform-origin:bottom}}
+/* секции */
+.sec{padding:clamp(56px,8vw,120px) max(5vw,16px);position:relative}
+.wrap{max-width:1240px;margin:0 auto}
+h2.t{font-size:clamp(30px,3.6vw,48px);line-height:1.08;margin:0 0 10px;letter-spacing:-.01em;text-wrap:balance}
+.lead{color:#9fb0c6;font-size:17px;max-width:60ch;margin:0 0 34px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.mk{position:relative;background:linear-gradient(160deg,#0d1725,#090f19);border:1px solid #1c2b40;border-radius:16px;padding:16px 16px 10px;overflow:hidden;transition:transform .25s,border-color .25s}
+.mk:hover{transform:translateY(-3px);border-color:#2d4a6e}
+.mk{color:var(--ink);text-decoration:none!important}.mk .mtop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.mk .sym{font-weight:800;font-size:16px}.mk .nm{color:#7d8ea5;font-size:12.5px}
+.mk .px{font:600 24px "JetBrains Mono",monospace;margin:14px 0 2px;transition:color .4s;white-space:nowrap}
+.mk .px.fu{color:var(--up)}.mk .px.fd{color:var(--down)}
+.pill{font:600 12px "JetBrains Mono",monospace;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.pill.up{background:#1fc27e1f;color:var(--up)}.pill.down{background:#f04b5c1f;color:var(--down)}.pill.flat{background:#ffffff12;color:#9fb0c6}
+.mk svg{width:100%;height:54px;display:block;margin-top:6px}
+.mk .st{font-size:11.5px;color:#7d8ea5;display:flex;gap:6px;align-items:center}
+.band{position:relative;min-height:78vh;display:flex;align-items:flex-end;overflow:hidden;border-top:1px solid #142236;border-bottom:1px solid #142236}
+.band .bg{position:absolute;inset:-12% 0;background-size:cover;background-position:center;will-change:transform}
+.band .bg.fb{background:radial-gradient(ellipse at 50% 80%,#0f3b3a,#05080e 70%)}
+.band::after{content:"";position:absolute;inset:0;background:linear-gradient(#05080e 0,#05080e00 30%,#05080e00 55%,#05080ef2 100%)}
+.band .wrap{position:relative;z-index:2;width:100%;padding:0 max(5vw,16px) clamp(40px,6vw,80px)}
+.feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.ft{background:#0a121dcc;border:1px solid #1c2b40;border-radius:16px;padding:20px;backdrop-filter:blur(10px)}
+.ft .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:#11243b;margin-bottom:12px}
+.ft h3{margin:0 0 6px;font-size:17px}.ft p{margin:0;color:#9fb0c6;font-size:14.5px}
+@media(max-width:900px){.feats{grid-template-columns:1fr 1fr}}@media(max-width:600px){.feats{grid-template-columns:1fr}}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:s}
+.stp{border-top:2px solid #1c2b40;padding-top:18px}.stp b{display:block;font-size:18px;margin-bottom:6px}.stp p{color:#9fb0c6;margin:0}
+.stp .no{font:600 13px "JetBrains Mono",monospace;color:var(--gold)}
+@media(max-width:760px){.steps{grid-template-columns:1fr}}
+.join{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:48px;align-items:center}
+@media(max-width:900px){.join{grid-template-columns:1fr}}
+.auth{padding:26px}.auth .tabs{padding:0;margin:-4px 0 8px}
+.pw{position:relative}.pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mute);cursor:pointer;padding:6px}
+.meter{height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}.meter i{display:block;height:100%;width:0;transition:width .2s}
+.hint2{font-size:12px;color:var(--mute);margin-top:4px}
+.err{color:var(--down);font-size:13px;min-height:18px;margin-top:10px}
+.auth .btn.pri{width:100%;margin-top:6px;min-height:46px;font-size:15px}
+.loggedin,.nav .loggedin{display:none}body.auth .loggedin{display:block}body.auth .nav .loggedin{display:inline-flex}body.auth .guest,body.auth .nav .guest{display:none!important}
+.btn.ghost{color:var(--ink)}
+@media(max-width:600px){.nav .acts .gold.guest{display:none}.nav{gap:10px}}
+footer.co{border-top:1px solid #142236;padding:44px max(5vw,16px) 54px;background:#04070c}
+.co .wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:30px}
+.co h4{margin:0 0 10px;font-size:14px;color:#c9d2df}.co p,.co li{color:#7d8ea5;font-size:13.5px;margin:0 0 6px}
+.co ul{list-style:none;padding:0;margin:0}
+.co .legal{grid-column:1/-1;border-top:1px solid #142236;padding-top:18px;color:#6c7d93;font-size:12.5px;line-height:1.6}
+@media(max-width:760px){.co .wrap{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.tape .row,.hint::after{animation:none}.zoom{height:auto}.stage{position:relative;height:100vh}}
+</style>
+</head>
+<body>
+<div class="demo-strip">Учебная платформа: все счета демо, средства виртуальные. Реальные деньги не принимаются и не выплачиваются.</div>
+<header class="nav">
+  <a class="brand" href="/"><i></i><span class="pname">TradeLab</span> <span class="badge">ДЕМО</span></a>
+  <nav class="links"><a href="#markets">Рынки</a><a href="#features">Возможности</a><a href="#how">Как начать</a><a href="#about">О компании</a></nav>
+  <div class="acts row"><a class="btn sm ghost guest" href="#join" data-tab="login">Войти</a><a class="btn sm gold guest" href="#join" data-tab="reg">Открыть демо-счёт</a><a class="btn sm gold loggedin" href="/app">Открыть терминал</a></div>
+</header>
+
+<section class="zoom" id="zoom">
+  <div class="stage">
+    <div class="cam" id="cam"><div class="fallback"></div><img id="hero" src="/img/hero.png" alt="" onerror="this.onerror=null;this.src='https://d8j0ntlcm91z4.cloudfront.net/user_3LH0JF948tVY6J9ZGKTq9ZtxGsj/hf_20261124_132724_53a119d4-c580-458e-80f0-148eedebaecf.png'"></div>
+    <canvas id="fx"></canvas>
+    <div class="shade"></div>
+    <div class="scene" data-i="0">
+      <span class="kicker"><i></i>Котировки в реальном времени · демо-счёт</span>
+      <h1>Учитесь торговать <em>как на настоящей бирже</em></h1>
+      <p>Акции, индексы, фьючерсы, форекс и криптовалюты в терминале уровня MT5. Счёт виртуальный, рынок настоящий, ментор рядом.</p>
+      <div class="cta"><a class="btn gold" href="#join" data-tab="reg">Открыть демо-счёт</a><a class="btn ghost" href="#markets">Смотреть рынки</a></div>
+    </div>
+    <div class="scene" data-i="1">
+      <div class="big" id="instCount">74</div>
+      <h2>инструмента на пяти рынках</h2>
+      <p>Котировки Binance, Finnhub и других источников, торговые сессии, спред и комиссия как у брокера.</p>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="scene" data-i="2">
+      <h2>Свои роботы на JavaScript</h2>
+      <p>Пишете стратегию, проверяете на истории и запускаете на сервере. Лимиты риска задаёте сами.</p>
+      <div class="codecard"><span class="c">// пересечение средних</span><br><span class="k">const</span> fast = <span class="f">input</span>(<span class="s">'fast'</span>, <span class="n">10</span>);<br><span class="k">function</span> <span class="f">onBar</span>() {<br>&nbsp;&nbsp;<span class="k">const</span> c = <span class="f">closes</span>();<br>&nbsp;&nbsp;<span class="k">if</span> (ta.<span class="f">crossOver</span>(ta.<span class="f">ema</span>(c, fast), ta.<span class="f">ema</span>(c, <span class="n">30</span>)))<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="f">buy</span>(<span class="n">0.1</span>, { sl: <span class="f">roundPrice</span>(bid * <span class="n">0.99</span>) });<br>}</div>
+    </div>
+    <div class="scene" data-i="3">
+      <h2>Ментор видит каждую сделку</h2>
+      <p>Разбирает ошибки, следит за прогрессом и сбрасывает счёт, когда нужно начать заново. Вы учитесь без риска для своих денег.</p>
+      <div class="cta"><a class="btn gold" href="#join" data-tab="reg">Начать обучение</a></div>
+    </div>
+    <div class="blackout" id="blackout"></div>
+    <div class="prog" id="prog"><i></i><i></i><i></i><i></i></div>
+    <div class="hint" id="hint">Прокрутите</div>
+    <div class="tape"><div class="row" id="tape"></div></div>
+  </div>
+</section>
+
+<section class="sec" id="markets">
+  <div class="wrap">
+    <h2 class="t">Рынки прямо сейчас</h2>
+    <p class="lead">Цены обновляются каждые пару секунд. Кликните по инструменту, чтобы открыть его в терминале.</p>
+    <div class="cards" id="cards"></div>
+    <p class="mute" style="font-size:12.5px;margin-top:14px">Источник котировок указан в терминале у каждого инструмента. Часть рынков может идти с задержкой или в режиме симуляции.</p>
+  </div>
+</section>
+
+<section class="band" id="features">
+  <div class="bg" id="bandBg" style="background-image:url('/img/scene.png'),url('https://d8j0ntlcm91z4.cloudfront.net/user_3LH0JF948tVY6J9ZGKTq9ZtxGsj/hf_20261124_132734_0bc8189f-2d94-463e-8ba6-862219154dc6.png')"></div>
+  <div class="wrap">
+    <h2 class="t" style="max-width:18ch">Всё, что есть у брокера, только без риска</h2>
+    <p class="lead">Отрабатывайте стратегии на реальных котировках, пока не будете уверены в каждом решении.</p>
+    <div class="feats">
+      <div class="ft"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fd6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 7-8"/><path d="M14 7h5v5"/></svg></div><h3>Терминал как MT5</h3><p>Свечи от M1 до D1, индикаторы, уровни, все типы ордеров, трейлинг-стоп, частичное закрытие.</p></div>
+      <div class="ft"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fd6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M5 7l-3 7h6zM19 7l-3 7h6z"/></svg></div><h3>Честная маржа</h3><p>Кредитное плечо, свободная маржа, маржин-колл и стоп-аут. Рынок закрыт — рыночные сделки недоступны.</p></div>
+      <div class="ft"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fd6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></div><h3>Роботы и тестер</h3><p>Код на JavaScript в защищённой песочнице, тест на истории, лимиты убытка и просадки.</p></div>
+      <div class="ft"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fd6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg></div><h3>Наставник</h3><p>Ментор видит сделки ученика, его роботов и результат, помогает разобрать ошибки.</p></div>
+      <div class="ft"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fd6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14-5L4 8M4 4v4h4M4 13a8 8 0 0 0 14 5l2-2M20 20v-4h-4"/></svg></div><h3>Сброс в один клик</h3><p>Счёт можно вернуть к стартовому балансу и начать заново. История сделок сохраняется.</p></div>
+      <div class="ft"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fd6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h3>Только учебные средства</h3><p>Никаких пополнений и выводов. Все операции по счёту видны вам в истории.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <div class="wrap">
+    <h2 class="t">Как начать</h2>
+    <p class="lead">Регистрация занимает минуту, виртуальный счёт открывается сразу.</p>
+    <div class="steps">
+      <div class="stp"><span class="no">01</span><b>Создайте демо-счёт</b><p>Почта и пароль. Код ментора — если вас пригласили.</p></div>
+      <div class="stp"><span class="no">02</span><b>Торгуйте на реальных ценах</b><p>Выберите рынок, плечо и тип ордера. Всё как в настоящем терминале.</p></div>
+      <div class="stp"><span class="no">03</span><b>Автоматизируйте</b><p>Опишите стратегию кодом, проверьте её на истории и запустите робота.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="join" style="background:radial-gradient(ellipse at 20% 50%,#0c2036,#05080e 60%)">
+  <div class="wrap join">
+    <div>
+      <h2 class="t">Откройте учебный счёт</h2>
+      <p class="lead">Виртуальный стартовый баланс <b id="rStartBig">$100 000</b>. Реальные деньги не нужны и не принимаются.</p>
+      <div class="chips" style="justify-content:flex-start" id="chips2"></div>
+    </div>
+    <div class="card auth">
+      <div class="loggedin"><h3 style="margin-top:0">Вы уже вошли</h3><p class="mute">Продолжайте с того места, где остановились.</p><a class="btn pri" style="width:100%;display:grid;place-items:center" href="/app">Открыть терминал</a></div>
+      <div class="guest">
+      <div class="tabs"><button id="tLogin" class="on" type="button">Вход</button><button id="tReg" type="button">Регистрация</button></div>
+      <form id="fLogin" novalidate>
+        <label for="le">Email</label><input id="le" type="email" autocomplete="email" required>
+        <label for="lp">Пароль</label><div class="pw"><input id="lp" type="password" autocomplete="current-password" required><button type="button" data-eye="lp">Показать</button></div>
+        <div class="err" id="lErr"></div>
+        <button class="btn pri" type="submit">Войти</button>
+      </form>
+      <form id="fReg" novalidate hidden>
+        <label for="rn">Имя</label><input id="rn" autocomplete="name" maxlength="40" required>
+        <label for="re">Email</label><input id="re" type="email" autocomplete="email" required>
+        <label for="rp">Пароль</label><div class="pw"><input id="rp" type="password" autocomplete="new-password" required><button type="button" data-eye="rp">Показать</button></div>
+        <div class="meter"><i id="pm"></i></div><div class="hint2" id="ph">От 8 символов, буквы и цифры</div>
+        <label for="rp2">Повторите пароль</label><input id="rp2" type="password" autocomplete="new-password" required>
+        <label for="ri">Код ментора <span id="riOpt" class="mute">(если есть)</span></label><input id="ri" maxlength="16" autocomplete="off" style="text-transform:uppercase">
+        <label class="check"><input type="checkbox" id="rt"><span>Понимаю, что это учебный демо-счёт: средства виртуальные, пополнение и вывод реальных денег невозможны.</span></label>
+        <div class="err" id="rErr"></div>
+        <button class="btn pri" type="submit">Создать демо-счёт</button>
+        <div class="hint2" id="rStart" style="text-align:center;margin-top:10px"></div>
+      </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="co" id="about">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="/"><i></i><span class="pname">TradeLab</span> <span class="badge">ДЕМО</span></a>
+      <p style="margin-top:12px;max-width:46ch">Учебная торговая платформа: терминал, роботы и наставники для тех, кто хочет научиться торговать без риска для своих денег.</p>
+    </div>
+    <div>
+      <h4>Компания</h4>
+      <ul id="coInfo"><li>Данные компании указываются в настройках сервера</li></ul>
+    </div>
+    <div class="legal">Платформа предназначена только для обучения. Все счета демонстрационные, средства виртуальные: пополнение, вывод и выплаты реальных денег невозможны. Результаты на демо-счёте не гарантируют результатов на реальном рынке. Платформа не оказывает инвестиционных, брокерских или обменных услуг и не является приглашением к инвестициям.</div>
+  </div>
+</footer>
+<script src="/js/common.js"></script>
+<script src="/js/landing.js"></script>
+<script src="/js/auth.js"></script>
+</body>
+</html>

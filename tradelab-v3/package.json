@@ -1,0 +1,23 @@
+{
+  "name": "tradelab-demo",
+  "version": "1.0.0",
+  "description": "Учебная демо-платформа для трейдинга с виртуальными счетами, менторами и админкой",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node --no-node-snapshot server.js",
+    "create-admin": "node server.js create-admin"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.7.0",
+    "codemirror": "^5.65.21",
+    "express": "^4.21.2",
+    "isolated-vm": "^6.2.0",
+    "lightweight-charts": "^5.3.0",
+    "ws": "^8.23.0"
+  }
+}

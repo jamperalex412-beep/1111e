@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Роботы · Демо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/cm/lib/codemirror.css"><link rel="stylesheet" href="/vendor/cm/theme/material-darker.css">
+<link rel="stylesheet" href="/style.css">
+<style>
+body{min-height:100vh;display:flex;flex-direction:column}
+.wrap{flex:1;display:grid;grid-template-columns:280px minmax(0,1fr);min-height:0}
+aside{border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}
+aside .hd{display:flex;justify-content:space-between;align-items:center;padding:14px}
+aside h2{margin:0;font-size:15px}
+.blist{overflow:auto;flex:1}
+.bi{display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:11px 14px;cursor:pointer}
+.bi:hover{background:var(--panel2)}.bi.on{background:var(--panel2);box-shadow:inset 3px 0 var(--acc)}
+.bi b{display:flex;gap:8px;align-items:center}.bi small{display:flex;justify-content:space-between;color:var(--mute);margin-top:3px}
+.dot.run{background:var(--up);box-shadow:0 0 0 3px #1fc27e33}.dot.err{background:var(--down)}
+main{min-width:0;display:flex;flex-direction:column}
+.bar{display:flex;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bar input#bName{max-width:340px;font-weight:700}
+.bar select{width:auto}
+.st{font-size:13px;padding:4px 10px;border-radius:99px;border:1px solid var(--line);color:var(--mute)}
+.st.running{color:var(--up);border-color:#1f5c40}.st.error{color:var(--down);border-color:#5a2028}
+.pane{padding:16px;flex:1;min-height:0;overflow:auto}
+.CodeMirror{height:min(62vh,720px);border:1px solid var(--line);border-radius:8px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:13.5px;line-height:1.55}
+.cm-s-material-darker.CodeMirror,.cm-s-material-darker .CodeMirror-gutters{background:#0f131a}
+.chk{margin-top:10px;font-size:13px}
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 16px}
+.form .wide{grid-column:1/-1}
+.days{display:flex;gap:4px;flex-wrap:wrap}.days label{display:flex;gap:4px;align-items:center;margin:0;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 9px;color:var(--ink)}
+.days input{width:14px;height:14px}
+h3.sec{font-size:15px;margin:22px 0 4px}h3.sec:first-child{margin-top:0}
+.hint{color:var(--mute);font-size:12.5px;margin:2px 0 8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:14px 0}
+.stats .box b{display:block;font-size:18px}.stats small{color:var(--mute)}
+#eq{height:260px;position:relative;border:1px solid var(--line);border-radius:8px}
+.logs{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px}
+.logs td{white-space:normal}
+.lv-trade{color:var(--acc)}.lv-warn{color:var(--demo)}.lv-error{color:var(--down)}.lv-log{color:var(--ink)}.lv-info{color:var(--mute)}
+.ref h4{margin:18px 0 6px;font-size:14px}.ref table td{white-space:normal;vertical-align:top}.ref code{color:#c3e88d}
+.empty-big{padding:60px 20px;text-align:center;color:var(--mute)}
+@media(max-width:860px){.wrap{grid-template-columns:1fr}aside{max-height:260px}}
+</style>
+</head>
+<body>
+<div class="demo-strip">Роботы торгуют на учебном демо-счёте виртуальными средствами и только в пределах ваших лимитов.</div>
+<header class="top">
+  <a class="brand" href="/app"><i></i><span id="pname">TradeLab</span> <span class="badge">ДЕМО</span></a>
+  <div class="user" style="margin-left:auto"><a class="btn sm" href="/app">Терминал</a><a class="btn sm" href="/admin" id="staff" hidden>Панель</a><span id="uName"></span><button class="btn sm" onclick="logout()">Выйти</button></div>
+</header>
+<div class="wrap">
+  <aside>
+    <div class="hd"><h2>Мои роботы</h2><div class="menu"><button class="btn sm pri" id="newBtn">Новый</button><div id="newMenu" hidden></div></div></div>
+    <div class="blist" id="blist"></div>
+  </aside>
+  <main id="main"><div class="empty-big">Выберите робота слева или создайте нового из шаблона.</div></main>
+</div>
+<script src="/vendor/cm/lib/codemirror.js"></script>
+<script src="/vendor/cm/mode/javascript/javascript.js"></script>
+<script src="/vendor/cm/addon/edit/matchbrackets.js"></script>
+<script src="/vendor/cm/addon/edit/closebrackets.js"></script>
+<script src="/vendor/cm/addon/comment/comment.js"></script>
+<script src="/vendor/lwc/lightweight-charts.standalone.production.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/bot-templates.js"></script>
+<script src="/js/bots.js"></script>
+</body>
+</html>
